@@ -19,14 +19,20 @@ jobs:
     
     - name: path
       run: ls output
-    
-    - name: Upload files to a GitHub release
-      uses: svenstaro/upload-release-action@2.2.1
+      
+    - name:  upload artifact
+      uses: actions/upload-artifact@v3.0.0
       with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ./output/images/*
-        tag: ${{ github.ref }}
-        file_glob: true
+        name: my_artifact
+        path: ./output/images/
+    
+#    - name: Upload files to a GitHub release
+#      uses: svenstaro/upload-release-action@2.2.1
+#      with:
+#        repo_token: ${{ secrets.GITHUB_TOKEN }}
+#        file: ./output/images/*
+#        tag: ${{ github.ref }}
+#        file_glob: true
 
       
   
