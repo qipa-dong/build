@@ -3,8 +3,7 @@ name: build armbian
 on:
   push:
     branches: [ v22.02 ]
-  pull_request:
-    branches: [ v22.02 ]
+  workflow_dispatch:
 
 jobs:
   build:
