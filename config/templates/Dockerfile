@@ -95,13 +95,11 @@ RUN apt-get update \
        python3-distutils \
        python3-pkg-resources \
        python3-setuptools \
-       qemu \
        qemu-utils \
        qemu-user-static \
        rsync \
        swig \
        sudo \
-       systemd-container \
        tzdata \
        u-boot-tools \
        udev \
