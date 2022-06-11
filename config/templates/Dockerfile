@@ -33,6 +33,7 @@ RUN apt-get update \
        bison \
        btrfs-progs \
        build-essential \
+       busybox \
        ca-certificates \
        ccache \
        cpio \
@@ -50,6 +51,7 @@ RUN apt-get update \
        fakeroot \
        flex \
        gawk \
+       gcc-aarch64-linux-gnu \
        gcc-arm-linux-gnueabihf \
        gcc-arm-linux-gnueabi \
        gcc-arm-none-eabi \
