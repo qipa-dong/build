@@ -3,18 +3,34 @@ ARCH=arm64
 KERNEL_IMAGE_TYPE=Image
 OFFSET=16
 BOOTSCRIPT='boot-rockchip64.cmd:boot.cmd'
-BOOTENV_FILE='rockchip.txt'
+BOOTENV_FILE='rockchip64.txt'
 UBOOT_TARGET_MAP=";;idbloader.bin uboot.img trust.bin"
 BOOTDELAY=0
 OVERLAY_PREFIX='rockchip'
 SERIALCON=${SERIALCON:=$([ $BRANCH == "legacy" ] && echo "ttyFIQ0:1500000" || echo "ttyS2:1500000")}
 GOVERNOR="ondemand"
 ATFPATCHDIR='atf-rockchip64'
-BOOTBRANCH="tag:v2021.07"
+BOOTBRANCH="tag:v2022.04"
 BOOTPATCHDIR="u-boot-rockchip64"
 PACKAGE_LIST_FAMILY="ethtool"
 
 RKBIN_DIR="$SRC/cache/sources/rkbin-tools"
+
+# Common variables:
+# BOOT_SCENARIO - determines which tpl (ddrbin), spl and ATF combination to use
+#
+# Different boot scenario can arrange:
+# * Phase 1: DDR initialization (proprietary rockchip ddrbin or u-boot TPL)
+# * Phase 2: Initial system and clock initialization (proprietary rockchip miniload or u-boot SPL)
+# * Phase 3: Arm Trusted Firmware (proprietary rockchip or mainline opensource)
+# * Phase 4: u-boot proper is always the mainline one
+#
+# Available options for BOOT_SCENARIO are:
+# - only-blobs: proprietary rockchip ddrbin, miniloader and ATF
+# - spl-blobs: proprietary rockchip ddrin and ATF, but uses mainline u-boot SPL in place of rockchip miniloader
+# - tpl-spl-blob: uses mainline u-boot TPL and SPL with proprietary rockchip ATF blob
+# - tpl-blob-atf-mainline: proprietary rockchip ddrbin + mainline u-boot SPL + mainline ATF
+# - blobless: mainline u-boot TPL + mainline u-boot SPL + mainline ATF
 
 #BOOT_SOC=`expr $BOOTCONFIG : '.*\(rk[[:digit:]]\+.*\)_.*'`
 BOOT_SOC=${BOOT_SOC:=$(expr $BOOTCONFIG : '.*\(rk[[:digit:]]\+.*\)_.*')}
@@ -42,41 +58,41 @@ fi
 if [[ $BOOT_SOC == rk3328 ]]; then
 
 	BOOT_SCENARIO="${BOOT_SCENARIO:=only-blobs}"
-	DDR_BLOB='rk33/rk3328_ddr_333MHz_v1.16.bin'
+	DDR_BLOB="${DDR_BLOB:=rk33/rk3328_ddr_333MHz_v1.16.bin}"
 	MINILOADER_BLOB='rk33/rk322xh_miniloader_v2.50.bin'
 	BL31_BLOB='rk33/rk322xh_bl31_v1.44.elf'
 
 elif [[ $BOOT_SOC == rk3399 ]]; then
 
 	BOOT_SCENARIO="${BOOT_SCENARIO:=only-blobs}"
-	DDR_BLOB='rk33/rk3399_ddr_933MHz_v1.25.bin'
+	DDR_BLOB="${DDR_BLOB:=rk33/rk3399_ddr_933MHz_v1.25.bin}"
 	MINILOADER_BLOB='rk33/rk3399_miniloader_v1.26.bin'
 	BL31_BLOB='rk33/rk3399_bl31_v1.35.elf'
 
 elif [[ $BOOT_SOC == rk3399pro ]]; then
 
 	BOOT_SCENARIO="${BOOT_SCENARIO:=only-blobs}"
-	DDR_BLOB='rk33/rk3399pro_npu_ddr_933MHz_v1.02.bin'
+	DDR_BLOB="${DDR_BLOB:=rk33/rk3399pro_npu_ddr_933MHz_v1.02.bin}"
 	MINILOADER_BLOB='rk33/rk3399pro_miniloader_v1.26.bin'
 	BL31_BLOB='rk33/rk3399pro_bl31_v1.35.elf'
 
 elif [[ $BOOT_SOC == rk3566 ]]; then
 
 	BOOT_SCENARIO="${BOOT_SCENARIO:=spl-blobs}"
-	DDR_BLOB='rk35/rk3566_ddr_1056MHz_v1.10.bin'
+	DDR_BLOB="${DDR_BLOB:=rk35/rk3566_ddr_1056MHz_v1.10.bin}"
 	BL31_BLOB='rk35/rk3568_bl31_v1.29.elf'
 
 elif [[ $BOOT_SOC == rk3568 ]]; then
 
 	BOOT_SCENARIO="${BOOT_SCENARIO:=spl-blobs}"
-	DDR_BLOB='rk35/rk3568_ddr_1560MHz_v1.10.bin'
+	DDR_BLOB="${DDR_BLOB:=rk35/rk3568_ddr_1560MHz_v1.10.bin}"
 	BL31_BLOB='rk35/rk3568_bl31_v1.28.elf'
 
 elif [[ $BOARD == rockpi-s ]]; then
 
 	BOOT_SCENARIO="${BOOT_SCENARIO:=only-blobs}"
 	BOOT_SOC=rk3308
-	DDR_BLOB='rk33/rk3308_ddr_589MHz_uart2_m1_v1.30.bin'
+	DDR_BLOB="${DDR_BLOB:=rk33/rk3308_ddr_589MHz_uart2_m1_v1.30.bin}"
 	MINILOADER_BLOB='rk33/rk3308_miniloader_v1.22.bin'
 	BL31_BLOB='rk33/rk3308_bl31_v2.22.elf'
 
@@ -109,7 +125,7 @@ edge)
 esac
 
 prepare_boot_configuration() {
-	if [[ $BOOT_SCENARIO == "blobless" ]]; then
+	if [[ $BOOT_SCENARIO == "blobless" || $BOOT_SCENARIO == "tpl-blob-atf-mainline" ]]; then
 
 		UBOOT_TARGET_MAP="BL31=bl31.elf idbloader.img u-boot.itb;;idbloader.img u-boot.itb"
 		ATFSOURCE='https://github.com/ARM-software/arm-trusted-firmware'
@@ -119,6 +135,8 @@ prepare_boot_configuration() {
 		ATF_USE_GCC='> 6.3'
 		ATF_TARGET_MAP="M0_CROSS_COMPILE=arm-linux-gnueabi- PLAT=$BOOT_SOC bl31;;build/$BOOT_SOC/release/bl31/bl31.elf:bl31.elf"
 		ATF_TOOLCHAIN2="arm-linux-gnueabi-:< 10.0"
+
+		[[ $BOOT_SCENARIO == "tpl-blob-atf-mainline" ]] && UBOOT_TARGET_MAP="BL31=bl31.elf idbloader.img u-boot.itb;;idbloader.img u-boot.itb"
 
 	elif [[ $BOOT_SCENARIO == "tpl-spl-blob" ]]; then
 
@@ -155,7 +173,7 @@ uboot_custom_postprocess() {
 
 	if [[ $BOOT_SCENARIO == "blobless" || $BOOT_SCENARIO == "tpl-spl-blob" ]]; then
 		:
-	elif [[ $BOOT_SCENARIO == "spl-blobs" ]]; then
+	elif [[ $BOOT_SCENARIO == "spl-blobs" || $BOOT_SCENARIO == "tpl-blob-atf-mainline" ]]; then
 
 		tools/mkimage -n $BOOT_SOC -T rksd -d $RKBIN_DIR/$DDR_BLOB:spl/u-boot-spl.bin idbloader.img
 
@@ -267,6 +285,12 @@ family_tweaks() {
 		chroot $SDCARD /bin/bash -c "apt-get -y -qq install rfkill bluetooth bluez bluez-tools"
 		chroot $SDCARD /bin/bash -c "systemctl --no-reload enable rk3399-bluetooth.service >/dev/null 2>&1"
 
+	elif [[ -f $SDCARD/lib/systemd/system/sprd-bluetooth.service ]]; then
+
+		# install and enable Bluetooth
+		chroot $SDCARD /bin/bash -c "apt-get -y -qq install rfkill bluetooth bluez bluez-tools"
+		chroot $SDCARD /bin/bash -c "systemctl --no-reload enable sprd-bluetooth.service >/dev/null 2>&1"
+
 	fi
 
 	if [[ $BOARD == nanopim4* ]]; then
@@ -295,6 +319,22 @@ family_tweaks() {
 
 	fi
 
+	if [[ $BOARD == jetson-nano ]]; then
+		install -m 755 $SRC/packages/blobs/jetson/jetson.sh $SDCARD/etc/initramfs-tools/hooks/jetson.sh
+		if [[ $BRANCH == legacy ]]; then
+			install -m 755 $SRC/packages/blobs/jetson/tegra21x_xusb_firmware $SDCARD/lib/firmware/tegra21x_xusb_firmware
+			install -m 755 $SRC/packages/blobs/jetson/asound.conf.tegrahda $SDCARD/etc/asound.conf.tegrahda
+			install -m 755 $SRC/packages/blobs/jetson/asound.conf.tegrahda $SDCARD/etc/asound.conf
+			install -m 755 $SRC/packages/blobs/jetson/asound.conf.tegrasndt210ref $SDCARD/etc/asound.conf.tegrasndt210ref
+			install -m 755 $SRC/packages/blobs/jetson/tegra-hda.conf $SDCARD/usr/share/alsa/cards/tegra-hda.conf
+			install -m 755 $SRC/packages/blobs/jetson/tegra-snd-t210r.conf $SDCARD/usr/share/alsa/cards/tegra-snd-t210r.conf
+			sed -e 's/exit 0//g' -i $SDCARD/etc/rc.local
+			echo "su -c 'echo 255 > /sys/devices/pwm-fan/target_pwm'" >> $SDCARD/etc/rc.local
+			echo "exit 0" >> $SDCARD/etc/rc.local
+		else
+			cp -R $SRC/packages/blobs/jetson/firmware/* $SDCARD/lib/firmware/
+		fi
+    	fi
 }
 
 family_tweaks_bsp() {
@@ -362,6 +402,15 @@ family_tweaks_bsp() {
 		fi
 	fi
 
+	if [[ $BOARD == orangepi4-lts ]]; then
+		
+		# Bluetooth on orangepi 4 LTS board is handled by a Spreadtrum (sprd) chip and requires
+		# a custom hciattach_opi binary, plus a systemd service to run it at boot time
+		install -m 755 $SRC/packages/bsp/rk3399/hciattach_opi $destination/usr/bin
+		cp $SRC/packages/bsp/rk3399/sprd-bluetooth.service $destination/lib/systemd/system/
+
+	fi
+
 	if [[ $BOARD == nanopim4* ]]; then
 
 		# Fan support
@@ -405,6 +454,14 @@ family_tweaks_bsp() {
 		install -m 755 $SRC/packages/bsp/helios64/helios64-ups.sh $destination/usr/bin/helios64-ups.sh
 
 	fi
+
+	if [[ $BOARD == rk3318-box ]]; then
+
+                # Optional board dtbo selection script
+                mkdir -p $destination/usr/local/bin
+                install -m 755 $SRC/packages/bsp/rk3318/rk3318-config $destination/usr/sbin
+
+        fi
 
 	if [[ $BOARD == pinebook-pro ]]; then
 

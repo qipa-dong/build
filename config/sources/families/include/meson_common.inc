@@ -4,7 +4,6 @@ BOOTBRANCH='branch:odroidc-v2011.03'
 BOOTDIR='u-boot-odroidc1'
 UBOOT_COMPILER="arm-linux-gnueabihf-"
 UBOOT_USE_GCC='< 4.9'
-BOOTSCRIPT="boot-odroid-c1.ini:boot.ini"
 SERIALCON="ttyAML0"
 UBOOT_TARGET_MAP=';;sd_fuse/bl1.bin.hardkernel sd_fuse/u-boot.bin'
 SRC_LOADADDR='LOADADDR=0x00208000'
@@ -41,6 +40,19 @@ case $BRANCH in
 	;;
 esac
 
+case $BOARD in
+	odroidc1)
+
+		BOOTSCRIPT="boot-odroid-c1.ini:boot.ini"
+
+	;;
+	onecloud)
+
+		BOOTSCRIPT="boot-onecloud.cmd:boot.cmd"
+
+	;;
+esac
+
 write_uboot_platform()
 {
 	dd if=$1/bl1.bin.hardkernel of=$2 bs=1 count=442 conv=fsync > /dev/null 2>&1
@@ -56,5 +68,13 @@ family_tweaks()
 
 family_tweaks_bsp()
 {
-	:	
+	mkdir -p "$destination/etc/X11/xorg.conf.d"
+	cat <<-EOF >"$destination/etc/X11/xorg.conf.d/02-driver.conf"
+	Section "OutputClass"
+		Identifier "Amlogic"
+		MatchDriver "meson"
+		Driver "modesetting"
+		Option "PrimaryGPU" "true"
+	EndSection
+	EOF
 }
