@@ -112,12 +112,14 @@ policykit-desktop-privileges
 printer-driver-all
 profile-sync-daemon
 pulseaudio-module-bluetooth
+plasma-workspace-wayland
 redshift
 samba
 slick-greeter
 smbclient
 software-properties-gtk
 spice-vdagent
+systemsettings
 system-config-printer
 system-config-printer-common
 terminator

@@ -88,6 +88,12 @@ elif [[ $BOOT_SOC == rk3568 ]]; then
 	DDR_BLOB="${DDR_BLOB:=rk35/rk3568_ddr_1560MHz_v1.10.bin}"
 	BL31_BLOB='rk35/rk3568_bl31_v1.28.elf'
 
+elif [[ $BOOT_SOC == rk3588 ]]; then
+
+	BOOT_SCENARIO="${BOOT_SCENARIO:=spl-blobs}"
+	DDR_BLOB="${DDR_BLOB:=rk35/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.07.bin}"
+	BL31_BLOB='rk35/rk3588_bl31_v1.25.elf'
+
 elif [[ $BOARD == rockpi-s ]]; then
 
 	BOOT_SCENARIO="${BOOT_SCENARIO:=only-blobs}"
@@ -105,22 +111,22 @@ fi
 
 case $BRANCH in
 
-current)
+	current)
 
-	KERNELBRANCH="branch:linux-5.15.y"
-	KERNELPATCHDIR='rockchip64-'$BRANCH
-	LINUXFAMILY=rockchip64
-	LINUXCONFIG='linux-rockchip64-'$BRANCH
-	;;
+		KERNELBRANCH="branch:linux-5.15.y"
+		KERNELPATCHDIR='rockchip64-'$BRANCH
+		LINUXFAMILY=rockchip64
+		LINUXCONFIG='linux-rockchip64-'$BRANCH
+		;;
 
-edge)
+	edge)
 
-	KERNELPATCHDIR='rockchip64-'$BRANCH
-	KERNELBRANCH="branch:linux-5.18.y"
-	LINUXFAMILY=rockchip64
-	LINUXCONFIG='linux-rockchip64-'$BRANCH
+		KERNELPATCHDIR='rockchip64-'$BRANCH
+		KERNELBRANCH="branch:linux-5.19.y"
+		LINUXFAMILY=rockchip64
+		LINUXCONFIG='linux-rockchip64-'$BRANCH
 
-	;;
+		;;
 
 esac
 
@@ -160,7 +166,7 @@ prepare_boot_configuration() {
 
 	if [[ $BOOT_SUPPORT_SPI == yes ]]; then
 
-		if [[ $BOARD != "rock-3a" ]]; then
+		if [[ $BOARD != "rock-3a" ]] && [[ $BOARD != "rock-5b" ]]; then
 			UBOOT_TARGET_MAP="BL31=$RKBIN_DIR/$BL31_BLOB tpl/u-boot-tpl.bin spl/u-boot-spl.bin u-boot.itb ${UBOOT_TARGET_MAP} rkspi_loader.img"
 		else
 			UBOOT_TARGET_MAP="${UBOOT_TARGET_MAP} rkspi_loader.img"
@@ -181,7 +187,7 @@ uboot_custom_postprocess() {
 
 		local tempfile=$(mktemp)
 		tools/mkimage -n $BOOT_SOC -T rksd -d $RKBIN_DIR/$DDR_BLOB idbloader.bin
-		cat $RKBIN_DIR/$MINILOADER_BLOB >>idbloader.bin
+		cat $RKBIN_DIR/$MINILOADER_BLOB >> idbloader.bin
 		$PKG_PREFIX$RKBIN_DIR/tools/loaderimage --pack --uboot ./u-boot-dtb.bin uboot.img 0x200000
 		$PKG_PREFIX$RKBIN_DIR/tools/trust_merger --replace bl31.elf $RKBIN_DIR/$BL31_BLOB trust.ini
 
@@ -191,7 +197,7 @@ uboot_custom_postprocess() {
 	fi
 
 	if [[ $BOOT_SUPPORT_SPI == yes ]]; then
-		if [[ $BOARD == "rock-3a" ]]; then
+		if [[ $BOARD == "rock-3a" ]] || [[ $BOARD == "rock-5b" ]]; then
 			dd if=/dev/zero of=rkspi_loader.img bs=1M count=0 seek=16
 			/sbin/parted -s rkspi_loader.img mklabel gpt
 			/sbin/parted -s rkspi_loader.img unit s mkpart idbloader 64 7167
@@ -215,18 +221,18 @@ uboot_custom_postprocess() {
 write_uboot_platform() {
 	if [[ -f $1/rksd_loader.img ]]; then # legacy rk3399 loader
 
-		dd if=$1/rksd_loader.img of=$2 seek=64 conv=notrunc status=none >/dev/null 2>&1
+		dd if=$1/rksd_loader.img of=$2 seek=64 conv=notrunc status=none > /dev/null 2>&1
 
 	elif [[ -f $1/u-boot.itb ]]; then # $BOOT_SCENARIO == "blobless" || $BOOT_SCENARIO == "tpl-spl-blob"
 
-		dd if=$1/idbloader.img of=$2 seek=64 conv=notrunc status=none >/dev/null 2>&1
-		dd if=$1/u-boot.itb of=$2 seek=16384 conv=notrunc status=none >/dev/null 2>&1
+		dd if=$1/idbloader.img of=$2 seek=64 conv=notrunc status=none > /dev/null 2>&1
+		dd if=$1/u-boot.itb of=$2 seek=16384 conv=notrunc status=none > /dev/null 2>&1
 
 	elif [[ -f $1/uboot.img ]]; then # $BOOT_SCENARIO == "only-blobs"
 
-		dd if=$1/idbloader.bin of=$2 seek=64 conv=notrunc status=none >/dev/null 2>&1
-		dd if=$1/uboot.img of=$2 seek=16384 conv=notrunc status=none >/dev/null 2>&1
-		dd if=$1/trust.bin of=$2 seek=24576 conv=notrunc status=none >/dev/null 2>&1
+		dd if=$1/idbloader.bin of=$2 seek=64 conv=notrunc status=none > /dev/null 2>&1
+		dd if=$1/uboot.img of=$2 seek=16384 conv=notrunc status=none > /dev/null 2>&1
+		dd if=$1/trust.bin of=$2 seek=24576 conv=notrunc status=none > /dev/null 2>&1
 
 	else
 		echo "Unsupported u-boot processing configuration!"
@@ -238,7 +244,7 @@ write_uboot_platform() {
 write_uboot_platform_mtd() {
 	if [[ -f $1/rkspi_loader.img ]]; then
 
-		dd if=$1/rkspi_loader.img of=$2 conv=notrunc status=none >/dev/null 2>&1
+		dd if=$1/rkspi_loader.img of=$2 conv=notrunc status=none > /dev/null 2>&1
 
 	else
 
@@ -255,8 +261,8 @@ setup_write_uboot_platform() {
 		local tmp=$(cat /proc/cmdline)
 		tmp="${tmp##*ubootpart=}"
 		tmp="${tmp%% *}"
-		[[ -n $tmp ]] && local part=$(findfs PARTUUID=$tmp 2>/dev/null)
-		[[ -n $part ]] && local dev=$(lsblk -n -o PKNAME $part 2>/dev/null)
+		[[ -n $tmp ]] && local part=$(findfs PARTUUID=$tmp 2> /dev/null)
+		[[ -n $part ]] && local dev=$(lsblk -n -o PKNAME $part 2> /dev/null)
 		[[ -n $dev ]] && DEVICE="/dev/$dev"
 
 	fi
@@ -273,7 +279,7 @@ family_tweaks() {
 
 		# rename USB based network to lan0
 		mkdir -p $SDCARD/etc/udev/rules.d/
-		echo 'SUBSYSTEM=="net", ACTION=="add", DRIVERS=="r8152", KERNEL=="eth1", NAME="lan0"' >$SDCARD/etc/udev/rules.d/70-rename-lan.rules
+		echo 'SUBSYSTEM=="net", ACTION=="add", DRIVERS=="r8152", KERNEL=="eth1", NAME="lan0"' > $SDCARD/etc/udev/rules.d/70-rename-lan.rules
 
 	elif [[ $BOARD == helios64 ]]; then
 
@@ -334,14 +340,14 @@ family_tweaks() {
 		else
 			cp -R $SRC/packages/blobs/jetson/firmware/* $SDCARD/lib/firmware/
 		fi
-    	fi
+	fi
 }
 
 family_tweaks_bsp() {
 
 	if [[ $BOOTCONFIG == *3328* ]] && [[ $BRANCH != legacy ]]; then
 		mkdir -p "$destination"/etc/X11/xorg.conf.d
-		cat <<-EOF >"$destination"/etc/X11/xorg.conf.d/02-driver.conf
+		cat <<- EOF > "$destination"/etc/X11/xorg.conf.d/02-driver.conf
 			# set fbdev as default driver.
 			Section "Device"
 			         Identifier "NOGPU"
@@ -353,7 +359,7 @@ family_tweaks_bsp() {
 	if [[ $BOARD == clockworkpi-a06 ]]; then
 		# rotate screen & disable dpms
 		mkdir -p "$destination"/etc/X11/xorg.conf.d
-		cat <<-EOF >"$destination"/etc/X11/xorg.conf.d/10-monitor.conf
+		cat <<- EOF > "$destination"/etc/X11/xorg.conf.d/10-monitor.conf
 			# set monitor
 			Section "Monitor"
 			        Identifier "DSI-1"
@@ -403,7 +409,7 @@ family_tweaks_bsp() {
 	fi
 
 	if [[ $BOARD == orangepi4-lts ]]; then
-		
+
 		# Bluetooth on orangepi 4 LTS board is handled by a Spreadtrum (sprd) chip and requires
 		# a custom hciattach_opi binary, plus a systemd service to run it at boot time
 		install -m 755 $SRC/packages/bsp/rk3399/hciattach_opi $destination/usr/bin
@@ -457,11 +463,11 @@ family_tweaks_bsp() {
 
 	if [[ $BOARD == rk3318-box ]]; then
 
-                # Optional board dtbo selection script
-                mkdir -p $destination/usr/local/bin
-                install -m 755 $SRC/packages/bsp/rk3318/rk3318-config $destination/usr/sbin
+		# Optional board dtbo selection script
+		mkdir -p $destination/usr/local/bin
+		install -m 755 $SRC/packages/bsp/rk3318/rk3318-config $destination/usr/sbin
 
-        fi
+	fi
 
 	if [[ $BOARD == pinebook-pro ]]; then
 
