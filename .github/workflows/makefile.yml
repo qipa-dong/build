@@ -1,0 +1,39 @@
+name: Makefile CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: configure
+      run: ./compile.sh KERNEL_ONLY=no BOARD=tn3399 BRANCH=current RELEASE=jammy BUILD_DESKTOP=no BUILD_MINIMAL=no KERNEL_CONFIGURE=no REPOSITORY_INSTALL="kernel,armbian-firmware" EXTERNAL_NEW=prebuilt COMPRESS_OUTPUTIMAGE="sha,gz"
+    
+    - name: path
+      run: ls output
+      
+    - name:  upload artifact
+      uses: actions/upload-artifact@v3.1.1
+      with:
+        name: my_artifact
+        path: ./output/images/
+    
+#    - name: Upload files to a GitHub release
+#      uses: svenstaro/upload-release-action@2.2.1
+#      with:
+#        repo_token: ${{ secrets.GITHUB_TOKEN }}
+#        file: ./output/images/*
+#        tag: ${{ github.ref }}
+#        file_glob: true
+
+      
+  
+
