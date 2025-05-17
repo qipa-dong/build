@@ -30,7 +30,8 @@ on:
         - bookworm
         - trixie
         - sid
-        default: 'jammy'
+        - noble
+        default: 'noble'
 
       armbian_ui:
         type: choice
@@ -43,7 +44,7 @@ on:
         - cinnamon
         - i3-wm
         - kde-plasma
-        default: 'minimal'
+        default: 'server'
 
       armbian_version:
         description: 'Version'
@@ -85,6 +86,7 @@ on:
         - rockpro64
         - rpi4b
         - tn3399
+        default: 'tn3399'
 jobs:
 
   build:
