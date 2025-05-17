@@ -1,0 +1,106 @@
+name: "Build One board"
+on:
+  workflow_dispatch:
+    inputs:
+
+      armbian_target:
+        type: choice
+        description: 'Build'
+        required: false
+        options:
+        - kernel
+        - build
+        default: build
+
+      armbian_kernel_branch:
+        type: choice
+        description: 'Kernel branch'
+        options:
+        - legacy
+        - current
+        - edge
+        default: 'current'
+
+      armbian_release:
+        type: choice
+        description: 'Userspace'
+        options:
+        - jammy
+        - mantic
+        - bookworm
+        - trixie
+        - sid
+        default: 'jammy'
+
+      armbian_ui:
+        type: choice
+        description: 'User interface (not all works)'
+        options:
+        - minimal
+        - server
+        - xfce
+        - gnome
+        - cinnamon
+        - i3-wm
+        - kde-plasma
+        default: 'minimal'
+
+      armbian_version:
+        description: 'Version'
+        required: false
+        default: ''
+
+      armbian_board:
+        type: choice
+        description: 'Board'
+        options:
+        - qemu-uboot-arm64
+        - qemu-uboot-x86
+        - qemu-uefi-x86
+        - rk3328-heltec
+        - roc-rk3399-pc
+        - rock-2a
+        - rock-2f
+        - rock-3a
+        - rock-3c
+        - rock-4se
+        - rock-5-cm-rpi-cm4-io
+        - rock-5-cmio
+        - rock-5-itx
+        - rock-5a
+        - rock-5b-plus
+        - rock-5b
+        - rock-5c
+        - rock-5t
+        - rock-s0
+        - rock64
+        - rockpi-4a
+        - rockpi-4b
+        - rockpi-4bplus
+        - rockpi-4c
+        - rockpi-4cplus
+        - rockpi-e
+        - rockpi-n10
+        - rockpi-s
+        - rockpro64
+        - rpi4b
+        - tn3399
+jobs:
+
+  build:
+    name: "Build Armbian"
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: armbian/build@v25.5.1
+        with:
+          armbian_token:              "${{secrets.GITHUB_TOKEN}}"
+          armbian_target:             "${{inputs.armbian_target}}"
+          armbian_release:            "${{inputs.armbian_release}}"
+          armbian_kernel_branch:      "${{inputs.armbian_kernel_branch}}"
+          armbian_ui:                 "${{inputs.armbian_ui}}"
+          armbian_board:              "${{inputs.armbian_board}}"
+          armbian_release_tittle:     "Armbian SDK"
+          armbian_release_body:       "Virtual images for x86 and arm64"
+          armbian_pgp_key:            "${{secrets.GPG_KEY1}}"
+          armbian_pgp_password:       "${{secrets.GPG_PASSPHRASE1}}"
