@@ -1,4 +1,4 @@
-name: Makefile CI
+name: TN3399
 
 on:
   push:
