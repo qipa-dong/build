@@ -1,0 +1,39 @@
+name: TN3399
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: configure
+      run: ./compile.sh BOARD=tn3399 BRANCH=current RELEASE=noble BUILD_DESKTOP=no BUILD_MINIMAL=no KERNEL_CONFIGURE=no REPOSITORY_INSTALL="kernel,armbian-firmware" EXTERNAL_NEW=prebuilt COMPRESS_OUTPUTIMAGE="sha,gz"
+    
+    - name: path
+      run: ls output
+      
+    - name:  Upload GitHub Pages artifact
+      uses: actions/upload-pages-artifact@v3.0.1
+      with:
+        path: ./output/images/
+    
+#    - name: Upload files to a GitHub release
+#      uses: svenstaro/upload-release-action@2.2.1
+#      with:
+#        repo_token: ${{ secrets.GITHUB_TOKEN }}
+#        file: ./output/images/*
+#        tag: ${{ github.ref }}
+#        file_glob: true
+
+      
+  
+
