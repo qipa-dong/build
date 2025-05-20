@@ -1,4 +1,4 @@
-name: TN3399
+name: x96q
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
     - uses: actions/checkout@v3
     
     - name: configure
-      run: ./compile.sh BOARD=tn3399 BRANCH=current RELEASE=noble BUILD_DESKTOP=no BUILD_MINIMAL=no KERNEL_CONFIGURE=no REPOSITORY_INSTALL="kernel,armbian-firmware" EXTERNAL_NEW=prebuilt COMPRESS_OUTPUTIMAGE="sha,gz"
+      run: ./compile.sh BOARD=x96q BRANCH=current RELEASE=noble BUILD_DESKTOP=no BUILD_MINIMAL=no KERNEL_CONFIGURE=no EXTERNAL_NEW=prebuilt COMPRESS_OUTPUTIMAGE="sha,gz"
     
     - name: path
       run: ls output
