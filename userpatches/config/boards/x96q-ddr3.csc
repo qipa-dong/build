@@ -1,0 +1,13 @@
+# Allwinner H313 TVBox with 2GB of RAM and EMMC
+BOARD_NAME="X96Q TV Box"
+BOARD_VENDOR="allwinner"
+BOARDFAMILY="sun50iw9"
+BOARD_MAINTAINER="Ethan"
+INTRODUCED="2026"
+BOOTCONFIG="x96q_ddr3_defconfig"
+BOOT_LOGO="desktop"
+KERNEL_TARGET="current,edge"
+KERNEL_TEST_TARGET="current,edge"
+FORCE_BOOTSCRIPT_UPDATE="no"
+OVERLAY_PREFIX="sun50i-h616"
+BOOT_FDT_FILE="amlogic/sun50i-h313-x96q-min.dtb"
