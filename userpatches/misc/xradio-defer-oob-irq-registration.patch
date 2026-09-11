@@ -1,0 +1,54 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ethan <ethan@localhost>
+Date: Sun, 7 Sep 2026 12:00:00 +0800
+Subject: xradio: defer OOB host-wake IRQ registration until BH thread ready
+
+The OOB host-wake IRQ was requested at the very beginning of sdio_probe(),
+before xradio_register_bh() had initialized bh_wq. Any interrupt arriving
+in that window (e.g. PG15 level/edge transitions during power-on) reaches
+xradio_irq_handler() and calls wake_up() on an uninitialized waitqueue,
+causing a NULL pointer panic (xradio_irq_handler -> __wake_up_common).
+
+Move the IRQ registration to after xradio_core_init(), so bh_wq is
+guaranteed to be initialized before the IRQ can fire. During probe the
+BH thread is driven by self-wakeup from wsm command submits plus the
+HZ/30 timeout polling, so it does not depend on the OOB IRQ.
+
+Signed-off-by: ethan <ethan@localhost>
+---
+ drivers/net/wireless/xradio/sdio.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/wireless/xradio/sdio.c b/drivers/net/wireless/xradio/sdio.c
+index cdc3ae0..568d92a 100644
+--- a/drivers/net/wireless/xradio/sdio.c
++++ b/drivers/net/wireless/xradio/sdio.c
+@@ -185,8 +185,6 @@ static int sdio_probe(struct sdio_func *func,
+ }
+ #endif
+ 
+-	xradio_probe_of(func);
+-
+ 	func->card->quirks |= MMC_QUIRK_BROKEN_BYTE_MODE_512;
+ 	sdio_claim_host(func);
+ 	sdio_enable_func(func);
+@@ -194,7 +192,16 @@ static int sdio_probe(struct sdio_func *func,
+ 
+ 	sdio_enableint(func);
+ 
+-	xradio_core_init(func);
++	/*
++	 * 推迟注册 OOB host-wake 中断：若在 BH 线程与 bh_wq 就绪前注册，
++	 * probe 期间 host-wake 的任何跳变/电平都会触发
++	 * xradio_irq_handler() -> xradio_bh_wakeup() -> wake_up(&bh_wq)，
++	 * 而 bh_wq 尚未 init_waitqueue_head，内核将因空指针 panic。
++	 * xradio_core_init() 内已 init_waitqueue_head(&bh_wq) 并启动 BH 线程；
++	 * probe 阶段 BH 由 wsm 命令自唤醒 + HZ/30 超时轮询驱动，不依赖 OOB 中断。
++	 */
++	if (!xradio_core_init(func))
++		xradio_probe_of(func);
+ 
+ 	return 0;
+ }
+-- 
+2.34.1

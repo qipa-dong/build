@@ -1,0 +1,43 @@
+name: 编译 Armbian (官方最新源码 + 自定义补丁)
+
+on:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: '底层系统版本 (如 bookworm, jammy, noble)'
+        required: true
+        default: 'bookworm'
+        type: choice
+        options:
+          - bookworm
+          - noble
+          - jammy
+          - bullseye
+      kernel_branch:
+        description: '内核分支'
+        required: true
+        default: 'current'
+        type: choice
+        options:
+          - current
+          - legacy
+          - edge
+
+jobs:
+  build-armbian:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # 赋予权限，以便自动上传到 Release
+    steps:
+      - name: "调用官方 Action 编译"
+        uses: armbian/build@main
+        with:
+          armbian_token: "${{ secrets.GITHUB_TOKEN }}"
+          armbian_board: "x96q-ddr3"
+          armbian_release: "${{ github.event.inputs.release }}"
+          armbian_kernel_branch: "${{ github.event.inputs.kernel_branch }}"
+          armbian_target: "build"   # 必须填 build 才会生成完整镜像
+          armbian_compress: "sha,img,xz"
+          armbian_release_title: "Armbian for x96"
+          armbian_release_body: "基于官方最新源码与当前仓库的 userpatches 自动编译"
+          armbian_release_tag: "build-${{ github.run_number }}"
