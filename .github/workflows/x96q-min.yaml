@@ -1,4 +1,4 @@
-name: 编译 Armbian (官方最新源码 + 自定义补丁)
+name: 编译 x96q Armbian (官方最新源码 + 自定义补丁)
 
 on:
   workflow_dispatch:
@@ -6,13 +6,7 @@ on:
       release:
         description: '底层系统版本 (如 bookworm, jammy, noble)'
         required: true
-        default: 'bookworm'
-        type: choice
-        options:
-          - bookworm
-          - noble
-          - jammy
-          - bullseye
+        type: string
       kernel_branch:
         description: '内核分支'
         required: true
