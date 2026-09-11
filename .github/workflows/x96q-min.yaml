@@ -1,4 +1,4 @@
-name: Build Armbian (Official Template)
+name: Build x96q Armbian (Official Template)
 
 # 仅手动触发。使用官方 armbian/build@main action（自动合并本仓库 userpatches/、
 # 自动创建 GitHub Release 上传镜像），并叠加缓存步骤加速重复构建。
@@ -38,7 +38,7 @@ concurrency:
 jobs:
   build:
     name: "Build ${{ inputs.armbian_board }} (${{ inputs.armbian_release }} / ${{ inputs.armbian_kernel_branch }})"
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 420
 
     steps:
