@@ -1,37 +1,85 @@
-name: 编译 x96q Armbian (官方最新源码 + 自定义补丁)
+name: Build Armbian (Official Template)
 
+# 仅手动触发。使用官方 armbian/build@main action（自动合并本仓库 userpatches/、
+# 自动创建 GitHub Release 上传镜像），并叠加缓存步骤加速重复构建。
 on:
   workflow_dispatch:
     inputs:
-      release:
-        description: '底层系统版本 (如 bookworm, jammy, noble)'
+      armbian_board:
+        description: "目标板子 BOARD"
         required: true
-        type: string
-      kernel_branch:
-        description: '内核分支'
+        default: "x96q-ddr3"
+      armbian_release:
+        description: "系统版本 RELEASE"
         required: true
-        default: 'current'
-        type: choice
-        options:
-          - current
-          - legacy
-          - edge
+        default: "resolute"
+      armbian_kernel_branch:
+        description: "内核分支 BRANCH（current / edge / legacy）"
+        required: true
+        default: "current"
+      armbian_ui:
+        description: "镜像形态（server=无桌面完整镜像 / minimal=最简）"
+        required: true
+        default: "server"
+      armbian_branch:
+        description: "armbian/build 框架版本（tag / 分支）"
+        required: true
+        default: "v26.11.0-trunk.30"
+      full_rebuild:
+        description: "全量重编译：清空缓存从零开始（yes / no）"
+        required: false
+        default: "no"
+
+# 与 armbian-build.yml 用不同 group，互不取消
+concurrency:
+  group: armbian-build-official
+  cancel-in-progress: false
 
 jobs:
-  build-armbian:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write # 赋予权限，以便自动上传到 Release
+  build:
+    name: "Build ${{ inputs.armbian_board }} (${{ inputs.armbian_release }} / ${{ inputs.armbian_kernel_branch }})"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 420
+
     steps:
-      - name: "调用官方 Action 编译"
+      # 官方 action 会把 armbian/build 框架 checkout 到 build/ 目录，cache 位于 build/cache
+      # 预创建目录，避免缓存恢复步骤因路径不存在而出错
+      - name: Prepare cache dir
+        run: mkdir -p build/cache
+
+      - name: Clear cache (full rebuild)
+        if: inputs.full_rebuild == 'yes'
+        run: |
+          rm -rf build/cache
+          echo "已清空缓存，将全量构建"
+
+      - name: Restore Armbian cache
+        if: inputs.full_rebuild != 'yes'
+        id: armbian-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: build/cache
+          key: armbian-official-${{ inputs.armbian_branch }}-${{ inputs.armbian_board }}-${{ inputs.armbian_kernel_branch }}-${{ inputs.armbian_release }}
+          restore-keys: |
+            armbian-official-${{ inputs.armbian_branch }}-${{ inputs.armbian_board }}-
+
+      # 官方模板：armbian_ui=server 对应 BUILD_DESKTOP=no BUILD_MINIMAL=no
+      # armbian_branch 填 tag 即锁定框架版本；userpatches/ 由 action 自动合并
+      - name: Build Armbian (official action)
         uses: armbian/build@main
         with:
-          armbian_token: "${{ secrets.GITHUB_TOKEN }}"
-          armbian_board: "x96q-ddr3"
-          armbian_release: "${{ github.event.inputs.release }}"
-          armbian_kernel_branch: "${{ github.event.inputs.kernel_branch }}"
-          armbian_target: "build"   # 必须填 build 才会生成完整镜像
-          armbian_compress: "sha,img,xz"
-          armbian_release_title: "Armbian for x96"
-          armbian_release_body: "基于官方最新源码与当前仓库的 userpatches 自动编译"
-          armbian_release_tag: "build-${{ github.run_number }}"
+          armbian_token: ${{ secrets.GITHUB_TOKEN }}
+          armbian_board: ${{ inputs.armbian_board }}
+          armbian_release: ${{ inputs.armbian_release }}
+          armbian_kernel_branch: ${{ inputs.armbian_kernel_branch }}
+          armbian_ui: ${{ inputs.armbian_ui }}
+          armbian_branch: ${{ inputs.armbian_branch }}
+          armbian_target: "build"
+          armbian_runner_clean: "yes"
+
+      - name: Save Armbian cache
+        if: inputs.full_rebuild != 'yes' && steps.armbian-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: build/cache
+          key: armbian-official-${{ inputs.armbian_branch }}-${{ inputs.armbian_board }}-${{ inputs.armbian_kernel_branch }}-${{ inputs.armbian_release }}
