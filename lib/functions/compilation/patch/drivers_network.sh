@@ -51,7 +51,7 @@ driver_rtl8189ES() {
 	if linux-version compare "${version}" ge 3.14; then
 
 		# Attach to specific commit (was "branch:master")
-		local rtl8189esver='commit:6fbc1014694944629c20d9e9dd504f1ea51ddd43' # Commit date: Sep 2nd 2026 (please update when updating commit ref)
+		local rtl8189esver='commit:c204f1311040d78732c04f25a507fb3fbbf08170' # Commit date: Sep 9th 2026 (please update when updating commit ref)
 
 		display_alert "Adding" "Wireless drivers for Realtek 8189ES chipsets ${rtl8189esver}" "info"
 
@@ -82,7 +82,9 @@ driver_rtl8189ES() {
 
 		# cfg80211 set_monitor_channel gained a net_device arg (6.13 mainline; backported to 6.12.101)
 		process_patch_file "${SRC}/patch/misc/wireless-rtl8189es-set-monitor-channel-6.12.101.patch" "applying"
-
+		display_alert "Done adding" "Wireless drivers for Realtek 8189ES chipsets ${rtl8189esver}" "info"
+	else
+		display_alert "Skipping" "Wireless drivers for Realtek 8189ES chipsets" "info"
 	fi
 }
 
@@ -93,7 +95,7 @@ driver_rtl8189FS() {
 	if linux-version compare "${version}" ge 3.14; then
 
 		# Attach to specific commit (was "branch:rtl8189fs")
-		local rtl8189fsver='commit:be148d226d22214a173e5b2dfe4287e53685ceda' # Commit date: Sep 2nd 2026 (please update when updating commit ref)
+		local rtl8189fsver='commit:1c2f16802d094e8a316b4cdac7285a6fe00ecd4f' # Commit date: Sep 9th 2026 (please update when updating commit ref)
 
 		display_alert "Adding" "Wireless drivers for Realtek 8189FS chipsets ${rtl8189fsver}" "info"
 
@@ -124,7 +126,9 @@ driver_rtl8189FS() {
 
 		# cfg80211 set_monitor_channel gained a net_device arg (6.13 mainline; backported to 6.12.101)
 		process_patch_file "${SRC}/patch/misc/wireless-rtl8189fs-set-monitor-channel-6.12.101.patch" "applying"
-
+		display_alert "Done adding" "Wireless drivers for Realtek 8189FS chipsets ${rtl8189fsver}" "info"
+	else
+		display_alert "Skipping" "Wireless drivers for Realtek 8189FS chipsets" "info"
 	fi
 }
 
@@ -162,7 +166,9 @@ driver_rtl8192EU() {
 
 		# cfg80211 set_monitor_channel gained a net_device arg (6.13 mainline; backported to 6.12.101)
 		process_patch_file "${SRC}/patch/misc/wireless-rtl8192eu-set-monitor-channel-6.12.101.patch" "applying"
-
+		display_alert "Done adding" "Wireless drivers for Realtek 8192EU chipsets ${rtl8192euver}" "info"
+	else
+		display_alert "Skipping" "Wireless drivers for Realtek 8192EU chipsets" "info"
 	fi
 }
 
@@ -212,6 +218,9 @@ driver_rtl8811_rtl8812_rtl8814_rtl8821() {
 		# fix compilation for kernels >= 6.16
 		process_patch_file "${SRC}/patch/misc/wireless-rtl8812au-Fix-6.16.patch" "applying"
 		process_patch_file "${SRC}/patch/misc/wireless-rtl8812au-set-monitor-channel-6.12.101.patch" "applying"
+		display_alert "Done adding" "Wireless drivers for Realtek 8811, 8812, 8814 and 8821 chipsets ${rtl8812auver}" "info"
+	else
+		display_alert "Skipping" "Wireless drivers for Realtek 8811, 8812, 8814 and 8821 chipsets" "info"
 	fi
 }
 
@@ -257,6 +266,9 @@ driver_rtl8812EU_rtl8822EU() {
 		echo "obj-\$(CONFIG_RTL8822EU) += rtl8822eu/" >> "$kerneldir/drivers/net/wireless/Makefile"
 		sed -i '/source "drivers\/net\/wireless\/ti\/Kconfig"/a source "drivers\/net\/wireless\/rtl8822eu\/Kconfig"' \
 			"$kerneldir/drivers/net/wireless/Kconfig"
+		display_alert "Done adding" "Wireless drivers for Realtek 8812EU and 8822EU chipsets ${rtl8822euver}" "info"
+	else
+		display_alert "Skipping" "Wireless drivers for Realtek 8812EU and 8822EU chipsets" "info"
 	fi
 }
 
@@ -269,7 +281,7 @@ driver_xradio_xr819() {
 		# Attach to specific commit (is branch:master)
 		local xradio_xr819_ver="commit:3ce657ae533e2213f6fda2297da1598fa11d7a03" # Commit date: Sep 1, 2026 (please update when updating commit ref)
 
-		display_alert "Adding" "Wireless drivers for Xradio XR819 chipsets" "info"
+		display_alert "Adding" "Wireless drivers for Xradio XR819 ${xradio_xr819_ver}" "info"
 
 		fetch_from_repo "$GITHUB_SOURCE/fifteenhex/xradio" "xradio" "${xradio_xr819_ver}" "yes"
 		cd "$kerneldir" || exit
@@ -294,6 +306,9 @@ driver_xradio_xr819() {
 			"$kerneldir/drivers/net/wireless/Kconfig"
 
 		process_patch_file "${SRC}/patch/misc/xradio-Switching-from-del_timer_sync-to-timer_delete_sync.patch" "applying"
+		display_alert "Done adding" "Wireless drivers for Xradio XR819 ${xradio_xr819_ver}" "info"
+	else
+		display_alert "Skipping" "Wireless drivers for Xradio XR819 ${xradio_xr819_ver}" "info"
 	fi
 }
 
@@ -339,6 +354,9 @@ driver_rtl8811CU_rtl8821C() {
 		# fix compilation for kernels >= 6.16
 		process_patch_file "${SRC}/patch/misc/wireless-rtl8811cu-Fix-6.16.patch" "applying"
 		process_patch_file "${SRC}/patch/misc/wireless-rtl8811cu-set-monitor-channel-6.12.101.patch" "applying"
+		display_alert "Done adding" "Wireless drivers for Realtek RTL8811CU and RTL8821C chipsets ${rtl8811cuver}" "info"
+	else
+		display_alert "Skipping" "Wireless drivers for Realtek RTL8811CU and RTL8821C chipsets" "info"
 	fi
 }
 
@@ -382,7 +400,9 @@ driver_rtl88x2bu() {
 		# fix compilation for kernels >= 6.16
 		process_patch_file "${SRC}/patch/misc/wireless-rtl88x2bu-Fix-6.16.patch" "applying"
 		process_patch_file "${SRC}/patch/misc/wireless-rtl88x2bu-set-monitor-channel-6.12.101.patch" "applying"
-
+		display_alert "Done adding" "Wireless drivers for Realtek 88x2bu chipsets ${rtl88x2buver}" "info"
+	else
+		display_alert "Skipping" "Wireless drivers for Realtek 88x2bu chipsets" "info"
 	fi
 }
 
@@ -397,6 +417,7 @@ driver_rtw88() {
 			process_patch_file "${SRC}/patch/misc/rtw88/${version}/001-drivers-net-wireless-realtek-rtw88-upstream-wireless.patch" "applying"
 			process_patch_file "${SRC}/patch/misc/rtw88/hack/003-rtw88-decrease-the-log-level-of-tx-report.patch" "applying"
 		fi
+		display_alert "Added" "Upstream wireless RTW88 drivers" "info"
 	fi
 
 	if linux-version compare "${version}" eq 6.1; then
@@ -406,10 +427,10 @@ driver_rtw88() {
 
 driver_rtl8852bs() {
 	# Wireless driver for Realtek 8852BS SDIO Wireless driver used in BananaPi F3 and Armsom Sige5
-	if linux-version compare "${version}" ge 6.1 && linux-version compare "${version}" lt 7.3 && [[ "${LINUXFAMILY}" == spacemit || "${LINUXFAMILY}" == rk35xx || "${LINUXFAMILY}" == rockchip64 ]]; then
+	if linux-version compare "${version}" ge 6.1 && [[ "${LINUXFAMILY}" == spacemit || "${LINUXFAMILY}" == rk35xx || "${LINUXFAMILY}" == rockchip64 ]]; then
 
 		# Attach to specific commit
-		local rtl8852bs_ver='commit:58840d11af91d0b72bc830980b4aff740a37b5e3' # Commit date: Aug 18, 2026 (please update when updating commit ref)
+		local rtl8852bs_ver='commit:643a4990752ad4761c2ad216901257adfd4fd8db' # Commit date: Sep 10, 2026 (please update when updating commit ref)
 
 		display_alert "Adding" "Wireless drivers for Realtek 8852BS SDIO chipset ${rtl8852bs_ver}" "info"
 
@@ -454,6 +475,9 @@ driver_rtl8852bs() {
 				sed -i "s/CONFIG_PLATFORM_SPACEMIT = n/CONFIG_PLATFORM_SPACEMIT = y/g" "$kerneldir/drivers/net/wireless/realtek/rtl8852bs/Makefile"
 				;;
 		esac
+		display_alert "Done adding" "Wireless drivers for Realtek 8852BS SDIO chipset ${rtl8852bs_ver}" "info"
+	else
+		display_alert "Skipping" "Wireless drivers for Realtek 8852BS SDIO chipset" "info"
 	fi
 }
 
@@ -501,6 +525,9 @@ driver_rtl88x2cs() {
 
 		# fix compilation for kernels >= 5.4
 		process_patch_file "${SRC}/patch/misc/wireless-rtl88x2cs-Fix-VFS-import.patch" "applying"
+		display_alert "Done adding" "Wireless drivers for Realtek 88x2cs chipsets ${rtl88x2csver}" "info"
+	else
+		display_alert "Skipping" "Wireless drivers for Realtek 88x2cs chipsets" "info"
 	fi
 }
 
@@ -511,9 +538,9 @@ driver_uwe5622() {
 	if linux-version compare "${version}" ge 5.15 && [[ "$LINUXFAMILY" == sun* || "$LINUXFAMILY" == rockchip64 || "$LINUXFAMILY" == rk35xx ]]; then
 
 		# Attach to specific commit
-		local uwe5622ver='commit:b64c5d6c36015049bdc34aad5f7b307545bfa29c' # Commit date: Sep 1, 2026 (please update when updating commit ref)
+		local uwe5622ver='commit:6eb218457c35cc4862f43a694708f74cf03370eb' # Commit date: Sep 9, 2026 (please update when updating commit ref)
 
-		display_alert "Adding" "Unisoc uwe5622 driver ${uwe5622ver}" "info"
+		display_alert "Adding" "Wireless drivers for Unisoc uwe5622 driver ${uwe5622ver}" "info"
 
 		fetch_from_repo "$GITHUB_SOURCE/armbian/uwe5622" "uwe5622" "${uwe5622ver}" "yes" # https://github.com/armbian/uwe5622
 		cd "$kerneldir" || exit
@@ -532,7 +559,9 @@ driver_uwe5622() {
 		sed -i '/source "drivers\/net\/wireless\/ti\/Kconfig"/a source "drivers\/net\/wireless\/uwe5622\/Kconfig"' \
 			"$kerneldir/drivers/net/wireless/Kconfig"
 
-		display_alert "Added" "uwe5622 driver with inline kernel version guards (5.15-7.1)" "info"
+		display_alert "Done adding" "Wireless drivers for Unisoc uwe5622 driver ${uwe5622ver}" "info"
+	else
+		display_alert "Skipping" "Wireless drivers for Unisoc uwe5622 driver" "info"
 	fi
 }
 
@@ -551,7 +580,6 @@ driver_rtl8723cs() {
 	# these few patches address some issues to let the rtl8723cs/rtl8703b chipsets to be used within the serdev framework
 	# Available only with kernels >= 6.1, because bt driver does not exist in older kernels
 	if linux-version compare "${version}" ge 6.1; then
-
 		if linux-version compare "${version}" ge 6.2 && linux-version compare "${version}" lt 6.3; then # landed in 6.1.30/6.3.4 # keep for 6.2
 			process_patch_file "${SRC}/patch/misc/bluetooth-rtl8723cs/bluetooth-btrtl-quirk-local-ext-features.patch" "applying"
 			process_patch_file "${SRC}/patch/misc/bluetooth-rtl8723cs/Bluetooth-btrtl-add-support-for-the-RTL8723CS.patch" "applying"
@@ -636,7 +664,6 @@ driver_rtl8723cs() {
 	if linux-version compare "${version}" ge 6.14; then
 		process_patch_file "${SRC}/patch/misc/wireless-rtl8723cs/8723cs-Port-to-6.14.patch" "applying"
 	fi
-
 }
 
 ###  The vendor's RTL8723DS driver is still required for RockPI-S support because
@@ -649,7 +676,7 @@ driver_rtl8723DS() {
 	if linux-version compare "${version}" ge 5.0 && [[ "$LINUXFAMILY" == rockchip64 ]]; then
 
 		# Attach to specific commit (was "branch:master")
-		local rtl8723dsver='commit:13c56416cb9dea2ccf9d351390ad0e9b064ac6a3' # Commit date: Sep 2nd 2026 (please update when updating commit ref)
+		local rtl8723dsver='commit:b5c8a00c52918c2f98c000551b0c5fc5e365f87e' # Commit date: Sep 9th 2026 (please update when updating commit ref)
 
 		display_alert "Adding" "Wireless drivers for Realtek 8723DS chipsets ${rtl8723dsver}" "info"
 
@@ -678,10 +705,9 @@ driver_rtl8723DS() {
 		sed -i '/source "drivers\/net\/wireless\/ti\/Kconfig"/a source "drivers\/net\/wireless\/rtl8723ds\/Kconfig"' \
 			"$kerneldir/drivers/net/wireless/Kconfig"
 
-		process_patch_file "${SRC}/patch/misc/wireless-rtl8723ds-Fix-p2p-go-advertising.patch" "applying"
-
-		# fix compilation for kernels >= 5.4
-		process_patch_file "${SRC}/patch/misc/wireless-rtl8723ds-Fix-VFS-import.patch" "applying"
+		display_alert "Done adding" "Wireless drivers for Realtek 8723DS chipsets ${rtl8723dsver}" "info"
+	else
+		display_alert "Skipping" "Wireless drivers for Realtek 8723DS chipsets" "info"
 	fi
 }
 
