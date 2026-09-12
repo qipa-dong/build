@@ -1,4 +1,4 @@
-name: Build x96q Armbian (Official Template)
+name: 编译 x96q Armbian (Official Template)
 
 # 仅手动触发。使用官方 armbian/build@main action（自动合并本仓库 userpatches/、
 # 自动创建 GitHub Release 上传镜像），并叠加缓存步骤加速重复构建。
@@ -56,9 +56,11 @@ jobs:
       - name: Restore Armbian cache
         if: inputs.full_rebuild != 'yes'
         id: armbian-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
-          path: build/cache
+          path: |
+            build/output/debs
+            build/output/packages-hashed
           key: armbian-official-${{ inputs.armbian_branch }}-${{ inputs.armbian_board }}-${{ inputs.armbian_kernel_branch }}-${{ inputs.armbian_release }}
           restore-keys: |
             armbian-official-${{ inputs.armbian_branch }}-${{ inputs.armbian_board }}-
@@ -79,7 +81,7 @@ jobs:
 
       - name: Save Armbian cache
         if: inputs.full_rebuild != 'yes' && steps.armbian-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: build/cache
           key: armbian-official-${{ inputs.armbian_branch }}-${{ inputs.armbian_board }}-${{ inputs.armbian_kernel_branch }}-${{ inputs.armbian_release }}
