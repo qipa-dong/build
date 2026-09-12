@@ -276,20 +276,6 @@ index 00000000000..20fb8d84f27
 +				regulator-name = "vcc-sys";
 +			};
 +
-+			reg_aldo2: aldo2 {
-+				regulator-always-on;
-+				regulator-min-microvolt = <3300000>;
-+				regulator-max-microvolt = <3300000>;
-+				regulator-name = "vcc3v3-ext";
-+			};
-+
-+			reg_aldo3: aldo3 {
-+				regulator-always-on;
-+				regulator-min-microvolt = <3300000>;
-+				regulator-max-microvolt = <3300000>;
-+				regulator-name = "vcc3v3-ext2";
-+			};
-+
 +			reg_bldo1: bldo1 {
 +				regulator-always-on;
 +				regulator-min-microvolt = <1800000>;
@@ -297,49 +283,11 @@ index 00000000000..20fb8d84f27
 +				regulator-name = "vcc1v8";
 +			};
 +
-+			bldo2 {
-+				/* unused */
-+			};
-+
-+			bldo3 {
-+				/* unused */
-+			};
-+
-+			bldo4 {
-+				/* unused */
-+			};
-+
-+			cldo1 {
-+				/* reserved */
-+			};
-+
-+			cldo2 {
-+				/* unused */
-+			};
-+
-+			cldo3 {
-+				/* unused */
-+			};
-+
 +			reg_dcdca: dcdca {
 +				regulator-always-on;
 +				regulator-min-microvolt = <810000>;
 +				regulator-max-microvolt = <1200000>;
 +				regulator-name = "vdd-cpu";
-+			};
-+
-+			reg_dcdcc: dcdcc {
-+				regulator-always-on;
-+				regulator-min-microvolt = <810000>;
-+				regulator-max-microvolt = <990000>;
-+				regulator-name = "vdd-gpu-sys";
-+			};
-+
-+			reg_dcdcd: dcdcd {
-+				regulator-always-on;
-+				regulator-min-microvolt = <1500000>;
-+				regulator-max-microvolt = <1500000>;
-+				regulator-name = "vdd-dram";
 +			};
 +
 +			reg_dcdce: dcdce {
