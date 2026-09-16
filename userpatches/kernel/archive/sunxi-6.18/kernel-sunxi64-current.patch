@@ -7,8 +7,8 @@ Subject: Patching kernel sunxi64 files arch/arm64/boot/dts/allwinner/Makefile
 Signed-off-by: John Doe <john.doe@somewhere.on.planet>
 ---
  arch/arm64/boot/dts/allwinner/Makefile                 |   1 +
- arch/arm64/boot/dts/allwinner/sun50i-h313-x96q-min.dts | 328 ++++++++++
- 2 files changed, 329 insertions(+)
+ arch/arm64/boot/dts/allwinner/sun50i-h313-x96q-min.dts | 329 ++++++++++
+ 2 files changed, 330 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/allwinner/Makefile b/arch/arm64/boot/dts/allwinner/Makefile
 index fe4935171..99b2ac828 100644
@@ -31,7 +31,7 @@ new file mode 100755
 index 000000000..20fb8d84f
 --- /dev/null
 +++ b/arch/arm64/boot/dts/allwinner/sun50i-h313-x96q-min.dts
-@@ -0,0 +1,326 @@
+@@ -0,0 +1,327 @@
 +// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 +/*
 + * X96Q (H313) 最小可启动设备树。
@@ -167,6 +167,7 @@ index 000000000..20fb8d84f
 +	sdio@1 {
 +		compatible = "xradio,xr819";
 +		reg = <1>;
++       local-mac-address = [02 7e c5 bb dd 2d];
 +		interrupt-parent = <&pio>;
 +		interrupts = <6 15 IRQ_TYPE_EDGE_RISING>;	/* PG15 WL_HOSTWAKE */
 +		interrupt-names = "host-wake";
