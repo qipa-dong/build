@@ -24,7 +24,7 @@ on:
       armbian_branch:
         description: "armbian/build 框架版本（tag / 分支）"
         required: true
-        default: "v26.11.0-trunk.30"
+        default: "v26.11.0-trunk.48"
       full_rebuild:
         description: "全量重编译：清空缓存从零开始（yes / no）"
         required: false
