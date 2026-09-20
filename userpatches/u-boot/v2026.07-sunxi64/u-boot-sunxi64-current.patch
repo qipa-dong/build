@@ -6,16 +6,16 @@ Subject: Patching u-boot sunxi64 files configs/x96q_ddr3_defconfig
 
 Signed-off-by: John Doe <john.doe@somewhere.on.planet>
 ---
- configs/x96q_ddr3_defconfig                               |  28 +
+ configs/x96q_ddr3_defconfig                               |  29 +
  dts/upstream/src/arm64/allwinner/sun50i-h313-x96q-min.dts | 276 ++++++++++
- 2 files changed, 304 insertions(+)
+ 2 files changed, 305 insertions(+)
 
 diff --git a/configs/x96q_ddr3_defconfig b/configs/x96q_ddr3_defconfig
 new file mode 100755
 index 00000000000..19049bdf502
 --- /dev/null
 +++ b/configs/x96q_ddr3_defconfig
-@@ -0,0 +1,28 @@
+@@ -0,0 +1,29 @@
 +CONFIG_ARM=y
 +CONFIG_ARCH_SUNXI=y
 +CONFIG_DEFAULT_DEVICE_TREE="allwinner/sun50i-h313-x96q-min"
@@ -44,6 +44,7 @@ index 00000000000..19049bdf502
 +CONFIG_USB_EHCI_HCD=y
 +CONFIG_USB_OHCI_HCD=y
 +CONFIG_USB_MUSB_GADGET=y
++CONFIG_AXP305_POWER=y
 diff --git a/dts/upstream/src/arm64/allwinner/sun50i-h313-x96q-min.dts b/dts/upstream/src/arm64/allwinner/sun50i-h313-x96q-min.dts
 new file mode 100755
 index 00000000000..20fb8d84f27
@@ -210,12 +211,12 @@ index 00000000000..20fb8d84f27
 +
 +&ehci1 {
 +	/* 板级未引线到外壳，保持可用无副作用 */
-+	status = "okay";
++	status = "disabled";
 +};
 +
 +&ehci2 {
 +	/* 板级未引线到外壳，保持可用无副作用 */
-+	status = "okay";
++	status = "disabled";
 +};
 +
 +/* 第 4 个 EHCI/OHCI：物理口2 归属 sunxi-ehci(安卓 usb 4-1)。
@@ -229,11 +230,11 @@ index 00000000000..20fb8d84f27
 +};
 +
 +&ohci1 {
-+	status = "okay";
++	status = "disabled";
 +};
 +
 +&ohci2 {
-+	status = "okay";
++	status = "disabled";
 +};
 +
 +&ohci3 {
