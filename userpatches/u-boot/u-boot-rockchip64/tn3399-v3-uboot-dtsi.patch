@@ -1,0 +1,41 @@
+From: TN3399-v3 port
+Subject: arm64: dts: rockchip: add TN3399-v3 u-boot overlay with DDR3-1600 params
+
+diff --git a/arch/arm/dts/rk3399-tn3399-v3-u-boot.dtsi b/arch/arm/dts/rk3399-tn3399-v3-u-boot.dtsi
+new file mode 100644
+index 0000000000..0000000000
+--- /dev/null
++++ b/arch/arm/dts/rk3399-tn3399-v3-u-boot.dtsi
+@@ -0,0 +1,32 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * TN3399-v3 U-Boot overlay: DDR3-1600, eMMC/SD boot
++ */
++
++#include "rk3399-u-boot.dtsi"
++#include "rk3399-sdram-ddr3-1600.dtsi"
++
++&gpio0 {
++	bootph-pre-ram;
++};
++
++&gpio1 {
++	bootph-pre-ram;
++};
++
++&sdhci {
++	cap-mmc-highspeed;
++	mmc-ddr-1_8v;
++};
++
++&vcc3v0_sd {
++	bootph-pre-ram;
++};
++
++&vdd_center {
++	regulator-init-microvolt = <900000>;
++};
++
++&vdd_log {
++	regulator-init-microvolt = <950000>;
++};
