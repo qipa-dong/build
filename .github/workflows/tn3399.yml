@@ -25,6 +25,10 @@ on:
         description: "armbian/build 框架版本（tag / 分支）"
         required: true
         default: "v26.11.0-trunk.102"
+      armbian_version:
+        description: "基础版本号（自动 +1，不要带 v 前缀）"
+        required: true
+        default: "26.11.0"     # 生成 26.11.1
       full_rebuild:
         description: "全量重编译：清空缓存从零开始（yes / no）"
         required: false
@@ -73,6 +77,7 @@ jobs:
         with:
           armbian_token: ${{ secrets.GITHUB_TOKEN }}
           armbian_board: ${{ inputs.armbian_board }}
+          armbian_version: ${{ inputs.armbian_version }}
           armbian_release: ${{ inputs.armbian_release }}
           armbian_kernel_branch: ${{ inputs.armbian_kernel_branch }}
           armbian_ui: ${{ inputs.armbian_ui }}
