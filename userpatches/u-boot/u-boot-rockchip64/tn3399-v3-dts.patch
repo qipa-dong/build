@@ -1,11 +1,11 @@
 From: TN3399-v3 port
 Subject: arm64: dts: rockchip: add TN3399-v3 board dts
 
-diff --git a/arch/arm/dts/rk3399-tn3399-v3.dts b/arch/arm/dts/rk3399-tn3399-v3.dts
+diff --git a/arch/arm/dts/tn3399-v3.dts b/arch/arm/dts/tn3399-v3.dts
 new file mode 100644
 index 0000000000..0000000000
 --- /dev/null
-+++ b/arch/arm/dts/rk3399-tn3399-v3.dts
++++ b/arch/arm/dts/tn3399-v3.dts
 @@ -0,0 +1,636 @@
 +// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 +/dts-v1/;
