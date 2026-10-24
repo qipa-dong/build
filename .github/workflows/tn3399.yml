@@ -29,10 +29,6 @@ on:
         description: "基础版本号（自动 +1，不要带 v 前缀）"
         required: true
         default: "26.11.0"     # 生成 26.11.1
-      full_rebuild:
-        description: "全量重编译：清空缓存从零开始（yes / no）"
-        required: false
-        default: "no"
 
 # 与 armbian-build.yml 用不同 group，互不取消
 concurrency:
@@ -47,29 +43,6 @@ jobs:
     timeout-minutes: 420
 
     steps:
-      # 官方 action 会把 armbian/build 框架 checkout 到 build/ 目录，cache 位于 build/cache
-      # 预创建目录，避免缓存恢复步骤因路径不存在而出错
-      - name: Prepare cache dir
-        run: mkdir -p build/cache
-
-      - name: Clear cache (full rebuild)
-        if: inputs.full_rebuild == 'yes'
-        run: |
-          rm -rf build/cache
-          echo "已清空缓存，将全量构建"
-
-      - name: Restore Armbian cache
-        if: inputs.full_rebuild != 'yes'
-        id: armbian-cache
-        uses: actions/cache/restore@v5
-        with:
-          path: |
-            build/output/debs
-            build/output/packages-hashed
-          key: armbian-official-${{ inputs.armbian_branch }}-${{ inputs.armbian_board }}-${{ inputs.armbian_kernel_branch }}-${{ inputs.armbian_release }}
-          restore-keys: |
-            armbian-official-${{ inputs.armbian_branch }}-${{ inputs.armbian_board }}-
-
       # 官方模板：armbian_ui=server 对应 BUILD_DESKTOP=no BUILD_MINIMAL=no
       # armbian_branch 填 tag 即锁定框架版本；userpatches/ 由 action 自动合并
       - name: Build Armbian (official action)
@@ -85,9 +58,3 @@ jobs:
           armbian_target: "build"
           armbian_runner_clean: "yes"
 
-      - name: Save Armbian cache
-        if: inputs.full_rebuild != 'yes' && steps.armbian-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5
-        with:
-          path: build/cache
-          key: armbian-official-${{ inputs.armbian_branch }}-${{ inputs.armbian_board }}-${{ inputs.armbian_kernel_branch }}-${{ inputs.armbian_release }}
