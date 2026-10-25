@@ -58,3 +58,11 @@ jobs:
           armbian_target: "build"
           armbian_runner_clean: "yes"
 
+      # runner 失联时，若日志断在编译/打包阶段，可用这里的信息确认是 OOM 还是磁盘写满
+      - name: 失败时输出资源诊断
+        if: failure()
+        run: |
+          df -h /
+          free -h
+          sudo dmesg | grep -iE "out of memory|killed process" | tail -20 || true
+
