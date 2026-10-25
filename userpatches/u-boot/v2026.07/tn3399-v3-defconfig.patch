@@ -7,15 +7,15 @@ and the DDR3-1600 SPL init instead of the generic EVB setup.
 
 Signed-off-by: qipa-dong <qipa-dong@users.noreply.github.com>
 ---
- configs/tn3399_v3_defconfig | 76 ++++++++++++++++++++++++++++++++++++++++++++
+ configs/tn3399-v3-rk3399_defconfig | 76 ++++++++++++++++++++++++++++++++++++++++++++
  1 file changed, 76 insertions(+)
- create mode 100644 configs/tn3399_v3_defconfig
+ create mode 100644 configs/tn3399-v3-rk3399_defconfig
 
-diff --git a/configs/tn3399_v3_defconfig b/configs/tn3399_v3_defconfig
+diff --git a/configs/tn3399-v3-rk3399_defconfig b/configs/tn3399-v3-rk3399_defconfig
 new file mode 100644
 index 0000000000..674bce4ace
 --- /dev/null
-+++ b/configs/tn3399_v3_defconfig
++++ b/configs/tn3399-v3-rk3399_defconfig
 @@ -0,0 +1,76 @@
 +CONFIG_ARM=y
 +CONFIG_SKIP_LOWLEVEL_INIT=y
