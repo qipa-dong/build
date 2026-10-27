@@ -11,8 +11,8 @@ new file mode 100644
 +#include "rk3399.dtsi"
 +
 +/ {
-+	model = "Unknown TN3399 V3";
-+	compatible = "unknown,tn3399", "rockchip,rk3399";
++	model = "TN3399 V3";
++	compatible = "rockchip,tn3399", "rockchip,rk3399";
 +
 +	chosen {
 +		stdout-path = "serial2:1500000n8";
