@@ -5,7 +5,7 @@ diff --git a/arch/arm/dts/tn3399-v3-u-boot.dtsi b/arch/arm/dts/tn3399-v3-u-boot.
 new file mode 100644
 --- /dev/null
 +++ b/arch/arm/dts/tn3399-v3-u-boot.dtsi
-@@ -0,0 +1,32 @@
+@@ -0,0 +1,34 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * TN3399-v3 U-Boot overlay: DDR3-1600, eMMC/SD boot
@@ -13,6 +13,12 @@ new file mode 100644
 +
 +#include "rk3399-u-boot.dtsi"
 +#include "rk3399-sdram-ddr3-1600.dtsi"
++
++/ {
++	chosen {
++		u-boot,spl-boot-order = &sdmmc, &sdhci;
++	};
++};
 +
 +&gpio0 {
 +	bootph-pre-ram;
@@ -25,10 +31,6 @@ new file mode 100644
 +&sdhci {
 +	cap-mmc-highspeed;
 +	mmc-ddr-1_8v;
-+};
-+
-+&vcc3v0_sd {
-+	bootph-pre-ram;
 +};
 +
 +&vdd_center {
